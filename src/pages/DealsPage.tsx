@@ -1,9 +1,19 @@
-import React from 'react';
-import { products } from '../data/products';
+import React, { useEffect, useState } from 'react';
+import { getAllProducts } from '../data/products';
 import { ProductCard } from '../components/common/ProductCard';
+import { Product } from '../types';
 
 const DealsPage: React.FC = () => {
-  const dealsProducts = products.filter(product => product.discount);
+  const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchDeals = async () => {
+      const allProducts = await getAllProducts();
+      const deals = allProducts.filter((product) => product.discountPrice);
+      setDealsProducts(deals);
+    };
+    fetchDeals();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -14,7 +24,7 @@ const DealsPage: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {dealsProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product._id} product={product} />
         ))}
       </div>
     </div>

@@ -1,71 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { products } from '../data/products';
+import React, { useState, useEffect, useMemo } from 'react';
+// import { products } from '../data/products'; // No longer needed
 import { categories } from '../data/categories';
 import { ProductCard } from '../components/common/ProductCard';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { Product } from '../types';
+import API from '../utils/axios';
 
 const ProductsPage: React.FC = () => {
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  // --- State for data fetched from API ---
+  const [products, setProducts] = useState<Product[]>([]);
+
+  // --- State for user-controlled filters ---
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('default');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20]);
 
+  // --- Fetch products from the backend ---
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await API.get('/products');
+        console.log(response.data);
+        
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []); // This effect runs only once when the component mounts
+
+  // --- Derive filtered products using useMemo ---
+  const filteredProducts = useMemo(() => {
     let result = [...products];
-    
+
     // Apply category filter
     if (selectedCategory !== 'all') {
-      result = result.filter(product => product.category === selectedCategory);
+      result = result.filter(product => product.category.name === selectedCategory);
     }
-    
+
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(product => 
-        product.name.toLowerCase().includes(query) || 
+      result = result.filter(product =>
+        product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query)
       );
     }
-    
-    // Apply price range filter
+
+    // Apply priceMRP range filter
     result = result.filter(product => {
-      const finalPrice = product.discount 
-        ? product.price * (1 - product.discount / 100) 
-        : product.price;
+      const finalPrice = product.discountPrice
+        ? product.priceMRP * (1 - product.discountPrice / 100)
+        : product.priceMRP;
       return finalPrice >= priceRange[0] && finalPrice <= priceRange[1];
     });
-    
-    // Apply sorting
+
+    // Apply sorting (creating a new sorted array)
+    const sortedResult = [...result];
     switch (sortBy) {
-      case 'price-low':
-        result.sort((a, b) => {
-          const priceA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
-          const priceB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
+      case 'priceMRP-low':
+        sortedResult.sort((a, b) => {
+          const priceA = a.discountPrice ? a.priceMRP * (1 - a.discountPrice / 100) : a.priceMRP;
+          const priceB = b.discountPrice ? b.priceMRP * (1 - b.discountPrice / 100) : b.priceMRP;
           return priceA - priceB;
         });
         break;
-      case 'price-high':
-        result.sort((a, b) => {
-          const priceA = a.discount ? a.price * (1 - a.discount / 100) : a.price;
-          const priceB = b.discount ? b.price * (1 - b.discount / 100) : b.price;
+      case 'priceMRP-high':
+        sortedResult.sort((a, b) => {
+          const priceA = a.discountPrice ? a.priceMRP * (1 - a.discountPrice / 100) : a.priceMRP;
+          const priceB = b.discountPrice ? b.priceMRP * (1 - b.discountPrice / 100) : b.priceMRP;
           return priceB - priceA;
         });
         break;
       case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
+        sortedResult.sort((a, b) => b.rating - a.rating);
         break;
       default:
-        // Default sorting (featured or newest)
         break;
     }
-    
-    setFilteredProducts(result);
-  }, [selectedCategory, searchQuery, sortBy, priceRange]);
-  
+
+    return sortedResult;
+  }, [products, selectedCategory, searchQuery, sortBy, priceRange]); // Recalculate only when these change
+
   const toggleFilters = () => {
     setShowFilters(!showFilters);
   };
@@ -124,12 +145,12 @@ const ProductsPage: React.FC = () => {
                   <span>All Categories</span>
                 </label>
                 {categories.map(category => (
-                  <label key={category.id} className="flex items-center">
+                  <label key={category._id} className="flex items-center">
                     <input
                       type="radio"
                       name="category"
-                      checked={selectedCategory === category.id}
-                      onChange={() => setSelectedCategory(category.id)}
+                      checked={selectedCategory === category._id}
+                      onChange={() => setSelectedCategory(category._id)}
                       className="mr-2 text-primary-600 focus:ring-primary-500"
                     />
                     <span>{category.name}</span>
@@ -139,7 +160,7 @@ const ProductsPage: React.FC = () => {
             </div>
             
             <div className="mb-6">
-              <h3 className="font-medium mb-2">Price Range</h3>
+              <h3 className="font-medium mb-2">priceMRP Range</h3>
               <div className="flex items-center space-x-2">
                 <span>${priceRange[0]}</span>
                 <input
@@ -176,8 +197,8 @@ const ProductsPage: React.FC = () => {
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="default">Featured</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
+                <option value="priceMRP-low">priceMRP: Low to High</option>
+                <option value="priceMRP-high">priceMRP: High to Low</option>
                 <option value="rating">Highest Rated</option>
               </select>
             </div>
@@ -208,7 +229,7 @@ const ProductsPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
