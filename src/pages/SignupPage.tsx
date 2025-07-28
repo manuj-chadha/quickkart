@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Button } from '../components/common/Button';
+const backendUrl = import.meta.env.VITE_BACKEND_API_URL;
+
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -8,13 +11,28 @@ const SignupPage: React.FC = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    phone: 0,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add signup logic here
-    navigate('/');
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const res = await axios.post(`${backendUrl}/auth/signup`, formData);
+      setSuccess('Account created successfully!');
+      setTimeout(() => navigate('/'), 1000); // redirect after 1s
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Signup failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +60,7 @@ const SignupPage: React.FC = () => {
                   name="name"
                   type="text"
                   required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -60,7 +78,7 @@ const SignupPage: React.FC = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -77,7 +95,7 @@ const SignupPage: React.FC = () => {
                   name="password"
                   type="password"
                   required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
@@ -85,25 +103,28 @@ const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                Phone
               </label>
               <div className="mt-1">
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
+                  id="phone"
+                  name="phone"
+                  type="number"
                   required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: Number(e.target.value) })}
                 />
               </div>
             </div>
 
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {success && <p className="text-sm text-green-600">{success}</p>}
+
             <div>
-              <Button type="submit" variant="primary" size="lg" fullWidth>
-                Create Account
+              <Button type="submit" variant="primary" size="lg" fullWidth disabled={loading}>
+                {loading ? 'Creating...' : 'Create Account'}
               </Button>
             </div>
           </form>

@@ -1,18 +1,45 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Button } from '../components/common/Button';
+import { useDispatch } from 'react-redux';
+import { setLoading, setUser } from '../redux/authSlice.ts'
+const backendUrl=import.meta.env.VITE_BACKEND_API_URL;
 
 const LoginPage: React.FC = () => {
+  const dispatch=useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add login logic here
-    navigate('/');
+    setLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await axios.post(`${backendUrl}/auth/signin`, formData);
+
+      if (res.status!==200) {
+        setErrorMsg(res.data.message || 'Login failed');
+      } else {
+        // save token or user info here if needed
+        // localStorage.setItem('token', res.data.token);
+        dispatch(setUser(res.data.user));
+        localStorage.setItem("token", res.data.token);
+        navigate('/');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err?.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,6 +57,10 @@ const LoginPage: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {errorMsg && (
+              <div className="text-red-500 text-sm text-center">{errorMsg}</div>
+            )}
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -87,8 +118,14 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div>
-              <Button type="submit" variant="primary" size="lg" fullWidth>
-                Sign in
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={loading}
+              >
+                {loading ? 'Signing in...' : 'Sign in'}
               </Button>
             </div>
           </form>
