@@ -42,7 +42,7 @@ export interface Product {
 export interface Category {
   _id: string;
   name: string;
-  image: string;
+  iconBanner: string;
 }
 
 export interface CartItem {

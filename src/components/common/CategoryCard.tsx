@@ -9,12 +9,12 @@ interface CategoryCardProps {
 export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link
-      to={`/category/${category.id}`}
+      to={`/category/${category._id}`}
       className="group relative block overflow-hidden rounded-lg shadow-sm transition-all hover:shadow-md"
     >
       <div className="aspect-w-1 aspect-h-1 h-40 w-full">
         <img
-          src={category.image}
+          src={category.iconBanner}
           alt={category.name}
           className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
         />

@@ -30,16 +30,18 @@ export const getFeaturedProducts = async (): Promise<Product[]> => {
 
 export const getProductsByCategory = async (categoryId: string): Promise<Product[]> => {
   try {
-    const res = await API.get(`/products`);
-    return res.data.filter((product: Product) => {
-      const prodCat = typeof product.category === 'object' ? product.category._id : product.category;
-      return prodCat === categoryId;
+    const { data: products } = await API.get<Product[]>('/products');
+
+    return products.filter(({ category }) => {
+      const categoryIdFromProduct = typeof category === 'object' ? category._id : category;
+      return categoryIdFromProduct === categoryId;
     });
   } catch (error) {
-    console.error('Error fetching products by category:', error);
+    console.error('❌ Failed to fetch products by category:', error);
     return [];
   }
 };
+
 
 export const getProductById = async (id: string): Promise<Product | null> => {
   try {
