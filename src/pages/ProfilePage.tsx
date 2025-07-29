@@ -2,8 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, Mail, Phone, MapPin, Settings, Package, LogOut } from 'lucide-react';
 import { Button } from '../components/common/Button';
+import { useDispatch, useSelector } from 'react-redux';
+import store, { RootState } from '../redux/store';
+import { setUser } from '../redux/authSlice';
 
 const ProfilePage: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch=useDispatch();
   const [activeTab, setActiveTab] = useState('profile');
   
   const mockUser = {
@@ -44,7 +49,7 @@ const ProfilePage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                   <div className="flex items-center border border-gray-300 rounded-lg px-4 py-3 bg-gray-50">
                     <User className="text-gray-400 mr-2" size={18} />
-                    <span className="text-gray-800">{mockUser.name}</span>
+                    <span className="text-gray-800">{user?.name}</span>
                   </div>
                 </div>
                 
@@ -52,7 +57,7 @@ const ProfilePage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                   <div className="flex items-center border border-gray-300 rounded-lg px-4 py-3 bg-gray-50">
                     <Mail className="text-gray-400 mr-2" size={18} />
-                    <span className="text-gray-800">{mockUser.email}</span>
+                    <span className="text-gray-800">{user?.email}</span>
                   </div>
                 </div>
                 
@@ -173,6 +178,17 @@ const ProfilePage: React.FC = () => {
     }
   };
   
+  function handleLogout(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
+    event.preventDefault();
+    // Optionally, dispatch a logout action if using Redux
+    // store.dispatch({ type: 'auth/logout' });
+    // Or use a logout thunk/action if available, e.g.:
+    // store.dispatch(logout());
+    // For now, just redirect to login page
+    localStorage.removeItem("token");
+    dispatch(setUser(null));
+    window.location.href = '/login';
+  }
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 font-display mb-8">My Account</h1>
@@ -185,8 +201,8 @@ const ProfilePage: React.FC = () => {
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-primary-100 text-primary-600 mb-3">
                 <User size={40} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{mockUser.name}</h2>
-              <p className="text-gray-600">{mockUser.email}</p>
+              <h2 className="text-xl font-bold text-gray-900">{user?.name}</h2>
+              <p className="text-gray-600">{user?.email}</p>
             </div>
             
             <nav className="space-y-1">
@@ -228,6 +244,7 @@ const ProfilePage: React.FC = () => {
               
               <button
                 className="w-full flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                onClick={handleLogout}
               >
                 <LogOut size={18} className="mr-3" />
                 <span>Logout</span>

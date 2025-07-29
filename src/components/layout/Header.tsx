@@ -48,7 +48,7 @@ export function Header() {
 
           {/* Right side icons */}
           <div className="flex items-center space-x-4">
-            <Link to="/login" className="text-gray-600 hover:text-primary-600 transition">
+            <Link to="/profile" className="text-gray-600 hover:text-primary-600 transition">
               <User size={24} />
             </Link>
             

@@ -56,7 +56,7 @@ export function Footer() {
           <div>
             <h3 className="text-white font-semibold text-lg mb-4">Account</h3>
             <ul className="space-y-2">
-              <li><Link to="/account" className="hover:text-primary-400 transition">My Account</Link></li>
+              <li><Link to="/profile" className="hover:text-primary-400 transition">My Account</Link></li>
               <li><Link to="/orders" className="hover:text-primary-400 transition">My Orders</Link></li>
               <li><Link to="/wishlist" className="hover:text-primary-400 transition">Wishlist</Link></li>
               <li><Link to="/account/settings" className="hover:text-primary-400 transition">Settings</Link></li>

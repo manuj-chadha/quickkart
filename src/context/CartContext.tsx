@@ -31,11 +31,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addToCart = (product: Product, quantity = 1) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.product.id === product.id);
+      const existingItem = prevCart.find((item) => item.product._id === product._id);
       
       if (existingItem) {
         return prevCart.map((item) =>
-          item.product.id === product.id
+          item.product._id === product._id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -46,7 +46,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.product.id !== productId));
+    setCart((prevCart) => prevCart.filter((item) => item.product._id !== productId));
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -57,7 +57,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
+        item.product._id === productId ? { ...item, quantity } : item
       )
     );
   };
@@ -68,10 +68,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getTotal = () => {
     return cart.reduce((total, item) => {
-      const price = item.product.discount 
-        ? item.product.price * (1 - item.product.discount / 100)
-        : item.product.price;
-      return total + price * item.quantity;
+      const priceMRP = item.product.discountPrice 
+        ? item.product.priceMRP * (1 - item.product.discountPrice / 100)
+        : item.product.priceMRP;
+      return total + priceMRP * item.quantity;
     }, 0);
   };
 

@@ -83,7 +83,7 @@ const ProductDetailPage: React.FC = () => {
 
           <div>
             <div className="mb-2 flex items-center">
-              <span className="text-sm text-gray-500 capitalize">{String(product.category)}</span>
+              <span className="text-sm text-gray-500 capitalize">{String(product.category.name)}</span>
               <span
                 className={`ml-4 text-xs font-medium px-2.5 py-0.5 rounded-full ${
                   product.stockCount<=0
