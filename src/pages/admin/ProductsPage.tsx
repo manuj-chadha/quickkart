@@ -22,10 +22,16 @@ const ProductsPage: React.FC = () => {
     fetchProducts();
   }, []);
 
-  // In a real app, you would implement actual deletion logic with API calls
-  const handleDeleteProduct = (_id: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+  const handleDeleteProduct = async (_id: string) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+      await API.delete(`/products/${_id}`);
       setProductsList(productsList.filter(product => product._id !== _id));
+      alert('Product deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Failed to delete product.');
     }
   };
 

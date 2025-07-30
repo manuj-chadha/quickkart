@@ -24,8 +24,7 @@ const CategoriesPage: React.FC = () => {
     fetchCategories();
   }, []);
 
-  if (loading) return <div className="text-center mt-8 text-gray-600">Loading categories...</div>;
-  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  
 
   return (
     <div className="container mx-auto px-4 py-8">

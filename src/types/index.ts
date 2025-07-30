@@ -42,6 +42,7 @@ export interface Product {
 export interface Category {
   _id: string;
   name: string;
+  description: string,
   iconBanner: string;
 }
 

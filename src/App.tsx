@@ -82,6 +82,8 @@ import DashboardPage from './pages/admin/DashboardPage';
 import AdminProductsPage from './pages/admin/ProductsPage';
 import AdminCategoriesPage from './pages/admin/CategoriesPage';
 import AdminOrdersPage from './pages/admin/OrdersPage';
+import ProductCreatePage from './pages/admin/CreateProduct';
+import CategoryFormPage from './pages/admin/CategoryFormPage';
 
 function App() {
   return (
@@ -99,6 +101,11 @@ function App() {
                     <Route path="products" element={<AdminProductsPage />} />
                     <Route path="categories" element={<AdminCategoriesPage />} />
                     <Route path="orders" element={<AdminOrdersPage />} />
+                    <Route path="products/new" element={<ProductCreatePage />} />
+                    <Route path="products/edit/:id" element={<ProductCreatePage />} />
+                    <Route path="categories/new" element={<CategoryFormPage />} />
+                    <Route path="categories/edit/:id" element={<CategoryFormPage />} />
+                    
                   </Routes>
                 </AdminLayout>
               </AdminRoute>
