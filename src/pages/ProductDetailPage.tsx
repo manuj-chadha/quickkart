@@ -105,10 +105,10 @@ const ProductDetailPage: React.FC = () => {
             </div>
 
             <div className="flex items-center mb-4">
-              <span className="text-3xl font-bold text-gray-900">${displayPrice.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-gray-900">₹{displayPrice.toFixed(2)}</span>
               {product.discountPrice > 0 && (
                 <>
-                  <span className="text-gray-500 line-through text-lg ml-2">${product.priceMRP.toFixed(2)}</span>
+                  <span className="text-gray-500 line-through text-lg ml-2">₹{product.priceMRP.toFixed(2)}</span>
                   <span className="ml-2 bg-accent-500 text-white text-xs font-bold rounded-full px-2 py-1">
                     {product.discountPrice}% OFF
                   </span>
@@ -120,7 +120,7 @@ const ProductDetailPage: React.FC = () => {
 
             <div className="mb-6 flex items-center">
               <Truck className="text-primary-600 mr-2" size={20} />
-              <span className="text-sm text-gray-700">Free delivery on orders over $50</span>
+              <span className="text-sm text-gray-700">Free delivery on orders over ₹50</span>
             </div>
 
             <div className="mb-6 flex items-center space-x-4">

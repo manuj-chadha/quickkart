@@ -114,7 +114,7 @@ const ProductsPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {product.featured ? 'Yes' : 'No'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-6 whitespace-nowrap text-right flex flex-row justify-center items-center text-sm font-medium">
                         <Link to={`/admin/products/edit/${product._id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">
                           <Edit size={18} />
                         </Link>

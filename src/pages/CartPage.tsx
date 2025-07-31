@@ -41,17 +41,17 @@ const CartPage: React.FC = () => {
               
               <ul className="divide-y divide-gray-200">
                 {cart.map((item) => {
-                  const displayPrice = item.product.discount 
-                    ? item.product.price * (1 - item.product.discount / 100) 
-                    : item.product.price;
+                  const displayPrice = item.product.discountPrice 
+                    ? item.product.priceMRP * (1 - item.product.discountPrice / 100) 
+                    : item.product.priceMRP;
                   const itemTotal = displayPrice * item.quantity;
                   
                   return (
-                    <li key={item.product.id} className="p-6">
+                    <li key={item.product._id} className="p-6">
                       <div className="flex flex-col sm:flex-row">
                         <div className="sm:w-24 h-24 bg-gray-100 rounded-md overflow-hidden mb-4 sm:mb-0">
                           <img
-                            src={item.product.image}
+                            src={item.product.images[0]}
                             alt={item.product.name}
                             className="w-full h-full object-cover"
                           />
@@ -61,20 +61,20 @@ const CartPage: React.FC = () => {
                           <div className="flex flex-col sm:flex-row sm:justify-between">
                             <div>
                               <h3 className="text-lg font-medium text-gray-900">
-                                <Link to={`/product/${item.product.id}`} className="hover:text-primary-600">
+                                <Link to={`/product/${item.product._id}`} className="hover:text-primary-600">
                                   {item.product.name}
                                 </Link>
                               </h3>
-                              <p className="text-sm text-gray-500 mt-1 capitalize">{item.product.category}</p>
+                              <p className="text-sm text-gray-500 mt-1 capitalize">{item.product.category.name}</p>
                               
                               <div className="mt-1">
-                                {item.product.discount ? (
+                                {item.product.discountPrice ? (
                                   <div className="flex items-center">
-                                    <span className="text-sm font-medium text-gray-900">${displayPrice.toFixed(2)}</span>
-                                    <span className="text-xs text-gray-500 line-through ml-2">${item.product.price.toFixed(2)}</span>
+                                    <span className="text-sm font-medium text-gray-900">₹{displayPrice.toFixed(2)}</span>
+                                    <span className="text-xs text-gray-500 line-through ml-2">₹{item.product.priceMRP.toFixed(2)}</span>
                                   </div>
                                 ) : (
-                                  <span className="text-sm font-medium text-gray-900">${item.product.price.toFixed(2)}</span>
+                                  <span className="text-sm font-medium text-gray-900">₹{item.product.priceMRP.toFixed(2)}</span>
                                 )}
                               </div>
                             </div>
@@ -83,7 +83,7 @@ const CartPage: React.FC = () => {
                               <div className="flex items-center">
                                 <div className="flex items-center border border-gray-300 rounded-md">
                                   <button 
-                                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                                    onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
                                     className="px-2 py-1 text-gray-600 hover:text-primary-600"
                                     disabled={item.quantity <= 1}
                                   >
@@ -91,7 +91,7 @@ const CartPage: React.FC = () => {
                                   </button>
                                   <span className="px-3 py-1 text-gray-700">{item.quantity}</span>
                                   <button 
-                                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                                    onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
                                     className="px-2 py-1 text-gray-600 hover:text-primary-600"
                                   >
                                     <Plus size={16} />
@@ -99,7 +99,7 @@ const CartPage: React.FC = () => {
                                 </div>
                                 
                                 <button 
-                                  onClick={() => removeFromCart(item.product.id)}
+                                  onClick={() => removeFromCart(item.product._id)}
                                   className="ml-4 text-gray-400 hover:text-red-500"
                                   aria-label="Remove item"
                                 >
@@ -109,7 +109,7 @@ const CartPage: React.FC = () => {
                               
                               <div className="mt-2 text-right">
                                 <span className="text-sm font-medium text-gray-900">
-                                  Total: ${itemTotal.toFixed(2)}
+                                  Total: ₹{itemTotal.toFixed(2)}
                                 </span>
                               </div>
                             </div>
@@ -131,13 +131,13 @@ const CartPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${getTotal().toFixed(2)}</span>
+                  <span className="font-medium">₹{getTotal().toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {getTotal() >= 50 ? 'Free' : '$4.99'}
+                    {getTotal() >= 50 ? 'Free' : '₹19.99'}
                   </span>
                 </div>
                 
@@ -145,13 +145,13 @@ const CartPage: React.FC = () => {
                   <div className="flex justify-between">
                     <span className="text-lg font-bold text-gray-900">Total</span>
                     <span className="text-lg font-bold text-gray-900">
-                      ${(getTotal() >= 50 ? getTotal() : getTotal() + 4.99).toFixed(2)}
+                      ₹{(getTotal() >= 50 ? getTotal() : getTotal() + 19.99).toFixed(2)}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
                     {getTotal() >= 50 
                       ? 'Free shipping applied' 
-                      : `Add $${(50 - getTotal()).toFixed(2)} more for free shipping`}
+                      : `Add ₹${(50 - getTotal()).toFixed(2)} more for free shipping`}
                   </p>
                 </div>
               </div>

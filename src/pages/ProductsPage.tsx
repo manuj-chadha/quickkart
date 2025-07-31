@@ -12,7 +12,7 @@ const ProductsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('default');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   const { categories, loading, error } = useCategories();
 
@@ -22,10 +22,9 @@ const ProductsPage: React.FC = () => {
         const response = await API.get('/products');
         setProducts(response.data);
       } catch (error) {
-        console.error("Failed to fetch products:", error);
+        console.error('Failed to fetch products:', error);
       }
     };
-
     fetchProducts();
   }, []);
 
@@ -33,18 +32,22 @@ const ProductsPage: React.FC = () => {
     let result = [...products];
 
     if (selectedCategory !== 'all') {
-      result = result.filter(p => p.category._id === selectedCategory);
+      result = result.filter((p) => {
+        const catId = typeof p.category === 'string' ? p.category : p.category?._id;
+        return catId === selectedCategory;
+      });
     }
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query)
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
       );
     }
 
-    result = result.filter(p => {
+    result = result.filter((p) => {
       const price = p.discountPrice
         ? p.priceMRP * (1 - p.discountPrice / 100)
         : p.priceMRP;
@@ -54,20 +57,28 @@ const ProductsPage: React.FC = () => {
     switch (sortBy) {
       case 'price-low':
         result.sort((a, b) => {
-          const aPrice = a.discountPrice ? a.priceMRP * (1 - a.discountPrice / 100) : a.priceMRP;
-          const bPrice = b.discountPrice ? b.priceMRP * (1 - b.discountPrice / 100) : b.priceMRP;
+          const aPrice = a.discountPrice
+            ? a.priceMRP * (1 - a.discountPrice / 100)
+            : a.priceMRP;
+          const bPrice = b.discountPrice
+            ? b.priceMRP * (1 - b.discountPrice / 100)
+            : b.priceMRP;
           return aPrice - bPrice;
         });
         break;
       case 'price-high':
         result.sort((a, b) => {
-          const aPrice = a.discountPrice ? a.priceMRP * (1 - a.discountPrice / 100) : a.priceMRP;
-          const bPrice = b.discountPrice ? b.priceMRP * (1 - b.discountPrice / 100) : b.priceMRP;
+          const aPrice = a.discountPrice
+            ? a.priceMRP * (1 - a.discountPrice / 100)
+            : a.priceMRP;
+          const bPrice = b.discountPrice
+            ? b.priceMRP * (1 - b.discountPrice / 100)
+            : b.priceMRP;
           return bPrice - aPrice;
         });
         break;
       case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
     }
 
@@ -82,7 +93,7 @@ const ProductsPage: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 font-display mb-2">All Products</h1>
-          <p className="text-gray-600">Browse our wide selection of fresh groceries</p>
+          <p className="text-gray-600">Explore fresh groceries, daily needs, and more.</p>
         </div>
 
         <div className="mt-4 md:mt-0 w-full md:w-auto">
@@ -148,28 +159,28 @@ const ProductsPage: React.FC = () => {
             <div className="mb-6">
               <h3 className="font-medium mb-2">Price Range</h3>
               <div className="flex items-center space-x-2">
-                <span>${priceRange[0]}</span>
+                <span>₹{priceRange[0]}</span>
                 <input
                   type="range"
                   min="0"
-                  max="20"
+                  max="1000"
                   value={priceRange[0]}
                   onChange={(e) => setPriceRange([+e.target.value, priceRange[1]])}
                   className="w-full"
                 />
-                <span>${priceRange[1]}</span>
+                <span>₹{priceRange[1]}</span>
               </div>
               <div className="flex items-center space-x-2 mt-2">
-                <span>${priceRange[0]}</span>
+                <span>₹{priceRange[0]}</span>
                 <input
                   type="range"
                   min="0"
-                  max="20"
+                  max="1000"
                   value={priceRange[1]}
                   onChange={(e) => setPriceRange([priceRange[0], +e.target.value])}
                   className="w-full"
                 />
-                <span>${priceRange[1]}</span>
+                <span>₹{priceRange[1]}</span>
               </div>
             </div>
 
@@ -195,15 +206,17 @@ const ProductsPage: React.FC = () => {
                 setSelectedCategory('all');
                 setSearchQuery('');
                 setSortBy('default');
-                setPriceRange([0, 20]);
+                setPriceRange([0, 1000]);
               }}
             >
               Reset Filters
             </Button>
           </div>
         </div>
-
-        {/* Products */}
+        {
+          loading ? <div className="text-center mt-8 text-gray-600">Loading products for you...</div> : 
+          <>
+          {/* Products */}
         <div className="lg:col-span-3">
           {filteredProducts.length === 0 ? (
             <div className="text-center py-12">
@@ -212,12 +225,15 @@ const ProductsPage: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map(product => (
+              {filteredProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
         </div>
+          </>
+        }
+        
       </div>
     </div>
   );
