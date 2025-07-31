@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ProductCard } from '../components/common/ProductCard';
+import { SkeletonProductCard } from '../components/common/SkeletonProductCard';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import API from '../utils/axios';
@@ -14,7 +15,8 @@ const ProductsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('default');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
-  const { categories, loading, error } = useCategories();
+  const { categories, loading: loadingCategories, error } = useCategories();
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -23,6 +25,8 @@ const ProductsPage: React.FC = () => {
         setProducts(response.data);
       } catch (error) {
         console.error('Failed to fetch products:', error);
+      } finally {
+        setLoadingProducts(false);
       }
     };
     fetchProducts();
@@ -56,26 +60,10 @@ const ProductsPage: React.FC = () => {
 
     switch (sortBy) {
       case 'price-low':
-        result.sort((a, b) => {
-          const aPrice = a.discountPrice
-            ? a.priceMRP * (1 - a.discountPrice / 100)
-            : a.priceMRP;
-          const bPrice = b.discountPrice
-            ? b.priceMRP * (1 - b.discountPrice / 100)
-            : b.priceMRP;
-          return aPrice - bPrice;
-        });
+        result.sort((a, b) => (a.discountPrice ?? 0) - (b.discountPrice ?? 0));
         break;
       case 'price-high':
-        result.sort((a, b) => {
-          const aPrice = a.discountPrice
-            ? a.priceMRP * (1 - a.discountPrice / 100)
-            : a.priceMRP;
-          const bPrice = b.discountPrice
-            ? b.priceMRP * (1 - b.discountPrice / 100)
-            : b.priceMRP;
-          return bPrice - aPrice;
-        });
+        result.sort((a, b) => (b.discountPrice ?? 0) - (a.discountPrice ?? 0));
         break;
       case 'rating':
         result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -85,7 +73,6 @@ const ProductsPage: React.FC = () => {
     return result;
   }, [products, selectedCategory, searchQuery, sortBy, priceRange]);
 
-  if (loading) return <div className="text-center mt-8 text-gray-600">Loading categories...</div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
 
   return (
@@ -128,6 +115,7 @@ const ProductsPage: React.FC = () => {
               Filters
             </h2>
 
+            {/* Categories */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Categories</h3>
               <div className="space-y-2">
@@ -156,6 +144,7 @@ const ProductsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Price */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Price Range</h3>
               <div className="flex items-center space-x-2">
@@ -184,6 +173,7 @@ const ProductsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Sort */}
             <div className="mb-6">
               <h3 className="font-medium mb-2">Sort By</h3>
               <select
@@ -213,12 +203,16 @@ const ProductsPage: React.FC = () => {
             </Button>
           </div>
         </div>
-        {
-          loading ? <div className="text-center mt-8 text-gray-600">Loading products for you...</div> : 
-          <>
-          {/* Products */}
+
+        {/* Product Grid */}
         <div className="lg:col-span-3">
-          {filteredProducts.length === 0 ? (
+          {loadingProducts ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <SkeletonProductCard key={idx} />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
               <p className="text-gray-600">Try adjusting your search or filter criteria</p>
@@ -231,9 +225,6 @@ const ProductsPage: React.FC = () => {
             </div>
           )}
         </div>
-          </>
-        }
-        
       </div>
     </div>
   );

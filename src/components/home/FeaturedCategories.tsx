@@ -1,35 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-// import { categories } from '../../data/categories';
 import { CategoryCard } from '../common/CategoryCard';
+import { SkeletonCategoryCard } from '../common/SkeletonCategoryCard.tsx';
 import { Category } from '../../types';
 import { getCategories } from '../../data/categories';
 
 export function FeaturedCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-  
-    useEffect(() => {
-      const fetchCategories = async () => {
-        try {
-          const data = await getCategories();
-          setCategories(data);
-        } catch (err) {
-          setError('Failed to fetch categories.');
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchCategories();
-    }, []);
-  
-    if (loading) return <div className="text-center mt-8 text-gray-600">Loading categories...</div>;
-    if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const CATEGORY_LIMIT = 6;
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data.slice(0, CATEGORY_LIMIT)); // show only limited categories
+      } catch (err) {
+        console.error(err);
+        setError('Failed to fetch categories.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-8 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 font-display">Shop by Category</h2>
@@ -37,12 +37,24 @@ export function FeaturedCategories() {
             View All
           </Link>
         </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category) => (
-            <CategoryCard key={category._id} category={category} />
-          ))}
-        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {Array.from({ length: CATEGORY_LIMIT }).map((_, i) => (
+              <SkeletonCategoryCard key={i} />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : categories.length === 0 ? (
+          <div className="text-center text-gray-600">No categories available.</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((category) => (
+              <CategoryCard key={category._id} category={category} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

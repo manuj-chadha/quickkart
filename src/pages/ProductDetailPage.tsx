@@ -6,6 +6,7 @@ import { Button } from '../components/common/Button';
 import { ProductCard } from '../components/common/ProductCard';
 import { useCart } from '../context/CartContext';
 import { Product } from '../types';
+import { SkeletonProductCard } from '../components/common/SkeletonProductCard';
 
 const ProductDetailPage: React.FC = () => {
   const { _id } = useParams<{ _id: string }>();
@@ -19,32 +20,44 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     if (!_id) return;
 
-    const fetchProductData = async () => {
+    const fetchData = async () => {
       try {
         const prod = await getProductById(_id);
-        if (prod) {
-          setProduct(prod);
+        if (!prod) throw new Error('Product not found');
+        setProduct(prod);
 
-          const relatedList = await getProductsByCategory(prod.category._id);
-          const filtered = relatedList.filter(p => p._id !== prod._id).slice(0, 4);
-          setRelated(filtered);
-        }
+        const relatedList = await getProductsByCategory(prod.category?._id);
+        const filtered = relatedList.filter(p => p._id !== prod._id).slice(0, 4);
+        setRelated(filtered);
       } catch (err) {
-        console.error('Error loading product details:', err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductData();
+    fetchData();
   }, [_id]);
 
-  const incrementQuantity = () => setQuantity(prev => prev + 1);
-  const decrementQuantity = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
+  const incrementQuantity = () => setQuantity(q => q + 1);
+  const decrementQuantity = () => setQuantity(q => (q > 1 ? q - 1 : 1));
   const handleAddToCart = () => product && addToCart(product, quantity);
 
+  const displayPrice = product?.discountPrice
+    ? product.priceMRP * (1 - product.discountPrice / 100)
+    : product?.priceMRP;
+
   if (loading) {
-    return <div className="text-center py-16">Loading product...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-gray-500 text-lg">Loading product...</div>
+        <div className="grid grid-cols-1 gap-6 mt-6">
+          <SkeletonProductCard />
+          {/* {Array.from({ length: 4 }).map((_, i) => (
+          ))} */}
+        </div>
+      </div>
+    );
   }
 
   if (!product) {
@@ -58,10 +71,6 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const displayPrice = product.discountPrice
-    ? product.priceMRP * (1 - product.discountPrice / 100)
-    : product.priceMRP;
-
   return (
     <div className="container mx-auto px-4 py-8">
       <Link to="/products" className="inline-flex items-center text-primary-600 hover:text-primary-800 mb-6">
@@ -69,12 +78,11 @@ const ProductDetailPage: React.FC = () => {
         Back to Products
       </Link>
 
-      {/* Product Detail Section */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
           <div className="rounded-lg overflow-hidden bg-gray-100">
             <img
-              src={product.images[0]}
+              src={product.images?.[0]}
               alt={product.name}
               className="w-full h-full object-contain"
               style={{ maxHeight: '400px' }}
@@ -83,15 +91,15 @@ const ProductDetailPage: React.FC = () => {
 
           <div>
             <div className="mb-2 flex items-center">
-              <span className="text-sm text-gray-500 capitalize">{String(product.category.name)}</span>
+              <span className="text-sm text-gray-500 capitalize">{product.category?.name || 'Uncategorized'}</span>
               <span
                 className={`ml-4 text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                  product.stockCount<=0
+                  product.stockCount > 0
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
                 }`}
               >
-                {product.stockCount>0 ? 'In Stock' : 'Out of Stock'}
+                {product.stockCount > 0 ? 'In Stock' : 'Out of Stock'}
               </span>
             </div>
 
@@ -101,14 +109,16 @@ const ProductDetailPage: React.FC = () => {
               <Star className="w-5 h-5 text-yellow-500 fill-current" />
               <span className="text-sm ml-1 text-gray-600">{product.rating}</span>
               <span className="mx-2 text-gray-300">|</span>
-              <span className="text-sm text-gray-500">{product.stockCount}</span>
+              <span className="text-sm text-gray-500">{product.stockCount} in stock</span>
             </div>
 
             <div className="flex items-center mb-4">
-              <span className="text-3xl font-bold text-gray-900">₹{displayPrice.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-gray-900">₹{(displayPrice ?? 0).toFixed(2)}</span>
               {product.discountPrice > 0 && (
                 <>
-                  <span className="text-gray-500 line-through text-lg ml-2">₹{product.priceMRP.toFixed(2)}</span>
+                  <span className="text-gray-500 line-through text-lg ml-2">
+                    ₹{product.priceMRP.toFixed(2)}
+                  </span>
                   <span className="ml-2 bg-accent-500 text-white text-xs font-bold rounded-full px-2 py-1">
                     {product.discountPrice}% OFF
                   </span>
@@ -146,10 +156,10 @@ const ProductDetailPage: React.FC = () => {
                 size="lg"
                 className="flex-1 flex items-center justify-center"
                 onClick={handleAddToCart}
-                disabled={product.stockCount<=0}
+                disabled={product.stockCount <= 0}
               >
                 <ShoppingCart className="mr-2" size={20} />
-                {product.stockCount>0 ? 'Add to Cart' : 'Out of Stock'}
+                {product.stockCount > 0 ? 'Add to Cart' : 'Out of Stock'}
               </Button>
             </div>
           </div>

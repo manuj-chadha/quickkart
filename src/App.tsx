@@ -86,7 +86,7 @@ import CategoryFormPage from './pages/admin/CategoryFormPage';
 
 function App() {
   return (
-      <CartProvider>
+      // <CartProvider>
         <Router>
           <Routes>
             {/* Admin Routes */}
@@ -132,7 +132,7 @@ function App() {
             } />
           </Routes>
         </Router>
-      </CartProvider>
+      // </CartProvider>
   );
 }
 
