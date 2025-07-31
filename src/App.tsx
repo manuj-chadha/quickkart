@@ -58,7 +58,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { CartProvider } from './context/CartContext';
-import { AdminProvider } from './context/AdminContext';
+// import { AdminProvider } from './context/AdminContext';
 import { AdminLayout } from './components/admin/AdminLayout';
 import AdminLoginPage, { AdminRoute } from './components/admin/AdminRoute';
 import HomePage from './pages/HomePage';
