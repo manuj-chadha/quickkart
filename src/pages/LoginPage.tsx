@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import { Button } from '../components/common/Button';
-import { useDispatch } from 'react-redux';
-import { setLoading, setUser } from '../redux/authSlice.ts'
-const backendUrl=import.meta.env.VITE_BACKEND_API_URL;
+// import { useDispatch } from 'react-redux';
+// import { setLoading, setUser } from '../redux/authSlice.ts'
+import { useLogin } from '../hooks/useLogin.ts';
+// const backendUrl=import.meta.env.VITE_BACKEND_API_URL;
 
 const LoginPage: React.FC = () => {
-  const dispatch=useDispatch();
-  const navigate = useNavigate();
+  const { handleLogin }=useLogin();
+  // const dispatch=useDispatch();
+  // const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -19,27 +21,29 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setErrorMsg('');
+    handleLogin(formData.email, formData.password);
+    // e.preventDefault();
+    // setLoading(true);
+    // setErrorMsg('');
 
-    try {
-      const res = await axios.post(`${backendUrl}/auth/signin`, formData);
+    // try {
+    //   const res = await axios.post(`${backendUrl}/auth/signin`, formData);
 
-      if (res.status!==200) {
-        setErrorMsg(res.data.message || 'Login failed');
-      } else {
-        // save token or user info here if needed
-        // localStorage.setItem('token', res.data.token);
-        dispatch(setUser(res.data.user));
-        localStorage.setItem("token", res.data.token);
-        navigate('/');
-      }
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err?.response?.data?.message || 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
+    //   if (res.status!==200) {
+    //     setErrorMsg(res.data.message || 'Login failed');
+    //   } else {
+    //     // save token or user info here if needed
+    //     // localStorage.setItem('token', res.data.token);
+    //     dispatch(setUser(res.data.user));
+    //     localStorage.setItem("token", res.data.token);
+    //     navigate('/');
+    //   }
+    // } catch (err: any) {
+    //   console.error(err);
+    //   setErrorMsg(err?.response?.data?.message || 'Something went wrong');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
