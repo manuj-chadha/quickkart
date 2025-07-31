@@ -60,7 +60,7 @@ import { Layout } from './components/layout/Layout';
 import { CartProvider } from './context/CartContext';
 import { AdminProvider } from './context/AdminContext';
 import { AdminLayout } from './components/admin/AdminLayout';
-import { AdminRoute } from './components/admin/AdminRoute';
+import AdminLoginPage, { AdminRoute } from './components/admin/AdminRoute';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
@@ -77,7 +77,6 @@ import DealsPage from './pages/DealsPage';
 import AboutPage from './pages/AboutPage';
 
 // Admin Pages
-import AdminLoginPage from './pages/admin/AdminLoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import AdminProductsPage from './pages/admin/ProductsPage';
 import AdminCategoriesPage from './pages/admin/CategoriesPage';
@@ -87,7 +86,6 @@ import CategoryFormPage from './pages/admin/CategoryFormPage';
 
 function App() {
   return (
-    <AdminProvider>
       <CartProvider>
         <Router>
           <Routes>
@@ -135,7 +133,6 @@ function App() {
           </Routes>
         </Router>
       </CartProvider>
-    </AdminProvider>
   );
 }
 

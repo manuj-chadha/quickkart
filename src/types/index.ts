@@ -56,6 +56,7 @@ export interface User {
   name: string;
   email: string;
   addresses: Address[];
+  role: string
 }
 
 export interface Address {
