@@ -61,7 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.discountPrice ? (
               <>
                 <span className="text-gray-900 font-bold">${displayPrice.toFixed(2)}</span>
-                <span className="text-gray-500 line-through text-sm ml-2">${product.priceMRP.toFixed(2)}</span>
+                <span className="text-gray-500 line-through text-sm ml-2">₹{product.priceMRP.toFixed(2)}</span>
               </>
             ) : (
               <span className="text-gray-900 font-bold">${product.priceMRP.toFixed(2)}</span>

@@ -91,7 +91,7 @@ const ProductDetailPage: React.FC = () => {
                     : 'bg-red-100 text-red-800'
                 }`}
               >
-                {product.stockCount<=0 ? 'In Stock' : 'Out of Stock'}
+                {product.stockCount>0 ? 'In Stock' : 'Out of Stock'}
               </span>
             </div>
 
@@ -149,7 +149,7 @@ const ProductDetailPage: React.FC = () => {
                 disabled={product.stockCount<=0}
               >
                 <ShoppingCart className="mr-2" size={20} />
-                {product.stockCount<=0 ? 'Add to Cart' : 'Out of Stock'}
+                {product.stockCount>0 ? 'Add to Cart' : 'Out of Stock'}
               </Button>
             </div>
           </div>

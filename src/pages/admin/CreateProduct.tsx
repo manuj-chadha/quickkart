@@ -41,7 +41,7 @@ const ProductCreatePage: React.FC = () => {
         setFormData({
           name: product.name,
           description: product.description,
-          category: product.category,
+          category: product.category._id,
           subcategory: product.subcategory || '',
           priceMRP: product.priceMRP.toString(),
           discountPrice: product.discountPrice?.toString() || '',
@@ -79,8 +79,8 @@ const ProductCreatePage: React.FC = () => {
     const data = new FormData();
 
     if (formData.weightValue && formData.weightUnit) {
-      data.append('weightUnit[value]', formData.weightValue);
-      data.append('weightUnit[unit]', formData.weightUnit);
+      data.append('weightValue', formData.weightValue);
+      data.append('weightUnit', formData.weightUnit);
     }
 
     Object.entries(formData).forEach(([key, value]) => {

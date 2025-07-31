@@ -189,6 +189,21 @@ const ProfilePage: React.FC = () => {
     dispatch(setUser(null));
     window.location.href = '/login';
   }
+
+  if (!user) {
+    return (
+      <>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">You’re not logged in</h1>
+          <p className="text-gray-600 mb-6">Please log in to view your profile.</p>
+          <Link to="/login">
+            <Button variant="primary">Go to Login</Button>
+          </Link>
+        </div>
+      </>
+    );
+  }
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 font-display mb-8">My Account</h1>
