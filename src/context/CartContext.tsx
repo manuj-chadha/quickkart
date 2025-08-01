@@ -80,10 +80,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getTotal = () => {
     return cart.reduce((total, item) => {
-      const price = item.product.priceMRP;
-      return total + price * item.quantity;
+      const discount = item.product.discountPrice || 0;
+      const effectivePrice = item.product.priceMRP - (item.product.priceMRP * discount / 100);
+      return total + effectivePrice * item.quantity;
     }, 0);
   };
+
 
   const getItemsCount = () => {
     return cart.reduce((count, item) => count + item.quantity, 0);

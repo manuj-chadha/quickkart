@@ -1,26 +1,57 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import API from '../../utils/axios';
+
+interface OrderItem {
+  product: string;
+  quantity: number;
+  priceAtOrder: number;
+  name: string;
+}
+
+interface Order {
+  _id: string;
+  user: {
+    name: string;
+    email: string;
+  };
+  orderDate: string;
+  items: OrderItem[];
+  finalTotal: number;
+  status: string;
+  productTotal: number,
+  discount: number
+}
 
 const OrdersPage: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Mock orders data - in a real app, you would fetch this from your API
-  const orders = [
-    { id: 'ORD-001', customer: 'John Doe', date: '2023-06-15', total: 125.99, status: 'delivered', items: 3 },
-    { id: 'ORD-002', customer: 'Jane Smith', date: '2023-06-14', total: 89.50, status: 'processing', items: 2 },
-    { id: 'ORD-003', customer: 'Robert Johnson', date: '2023-06-14', total: 245.00, status: 'shipped', items: 5 },
-    { id: 'ORD-004', customer: 'Emily Davis', date: '2023-06-13', total: 65.25, status: 'delivered', items: 1 },
-    { id: 'ORD-005', customer: 'Michael Brown', date: '2023-06-12', total: 112.75, status: 'delivered', items: 4 },
-    { id: 'ORD-006', customer: 'Sarah Wilson', date: '2023-06-11', total: 78.50, status: 'cancelled', items: 2 },
-    { id: 'ORD-007', customer: 'David Taylor', date: '2023-06-10', total: 156.25, status: 'delivered', items: 3 },
-    { id: 'ORD-008', customer: 'Lisa Anderson', date: '2023-06-09', total: 210.00, status: 'delivered', items: 6 },
-  ];
+  const [loading, setLoading] = useState(true);
 
-  const filteredOrders = orders.filter(order => 
-    order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    order.customer.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await API.get('/orders/admin/orders');
+        setOrders(res.data);
+      } catch (err) {
+        console.error('❌ Failed to fetch orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const filteredOrders = orders.filter(order =>
+    order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return <div className="p-8 text-gray-600">Loading orders...</div>;
+  }
 
   return (
     <div>
@@ -28,7 +59,7 @@ const OrdersPage: React.FC = () => {
         <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
       </div>
 
-      {/* Search */}
+      {/* Search Bar */}
       <div className="mb-6">
         <div className="relative">
           <input
@@ -52,35 +83,42 @@ const OrdersPage: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customer}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.total.toFixed(2)}</td>
+                    <tr key={order._id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order._id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{order.user?.name || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.orderDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items.length}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">₹{(order.productTotal-order.discount).toFixed(2)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link to={`/admin/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900">
+                        <Link to={`/admin/orders/${order._id}`} className="text-indigo-600 hover:text-indigo-900">
                           <Eye size={18} />
                         </Link>
                       </td>
                     </tr>
                   ))}
+                  {filteredOrders.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="text-center py-6 text-sm text-gray-400">
+                        No matching orders found.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -92,15 +130,15 @@ const OrdersPage: React.FC = () => {
 };
 
 function getStatusColor(status: string): string {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case 'delivered':
       return 'bg-green-100 text-green-800';
-    case 'shipped':
+    case 'confirmed':
       return 'bg-blue-100 text-blue-800';
-    case 'processing':
-      return 'bg-yellow-100 text-yellow-800';
     case 'cancelled':
       return 'bg-red-100 text-red-800';
+    case 'out for delivery':
+      return 'bg-yellow-100 text-yellow-800';
     default:
       return 'bg-gray-100 text-gray-800';
   }

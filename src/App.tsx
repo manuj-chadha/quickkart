@@ -83,6 +83,8 @@ import AdminCategoriesPage from './pages/admin/CategoriesPage';
 import AdminOrdersPage from './pages/admin/OrdersPage';
 import ProductCreatePage from './pages/admin/CreateProduct';
 import CategoryFormPage from './pages/admin/CategoryFormPage';
+import OrderSuccessPage from './pages/OrderConfirmationPage';
+import CustomersPage from './pages/admin/CustomersPage';
 
 function App() {
   return (
@@ -103,7 +105,7 @@ function App() {
                     <Route path="products/edit/:id" element={<ProductCreatePage />} />
                     <Route path="categories/new" element={<CategoryFormPage />} />
                     <Route path="categories/edit/:id" element={<CategoryFormPage />} />
-                    
+                    <Route path="customers" element={<CustomersPage />} />                    
                   </Routes>
                 </AdminLayout>
               </AdminRoute>
@@ -120,7 +122,7 @@ function App() {
                   <Route path="/category/:_id" element={<CategoryPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                  <Route path="/order-success" element={<OrderSuccessPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/orders" element={<OrderHistoryPage />} />
                   <Route path="/login" element={<LoginPage />} />
