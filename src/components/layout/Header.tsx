@@ -72,7 +72,7 @@ export function Header() {
         </div>
 
         {/* Mobile search bar */}
-        <div className="md:hidden py-3">
+        {/* <div className="md:hidden py-3">
           <div className="relative">
             <input
               type="text"
@@ -85,7 +85,7 @@ export function Header() {
               <Search size={20} />
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Mobile menu */}

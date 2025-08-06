@@ -3,13 +3,27 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { Trash2, Minus, Plus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Button } from '../components/common/Button';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import { toast } from 'react-toastify';
 
 const CartPage: React.FC = () => {
   const { cart, updateQuantity, removeFromCart, getTotal, getItemsCount } = useCart();
   const navigate = useNavigate();
-  
+  const { user } = useSelector((state: RootState) => state.auth);
   const handleCheckout = () => {
-    navigate('/checkout');
+    if(!user) {
+      toast.error("You need to be logged in to perform this action.", {
+  style: {
+    fontFamily: '"Inter var", sans-serif',
+    fontSize: "14px",
+    fontWeight: 400,
+  },
+});
+    }
+    else {
+      navigate('/checkout');
+    }
   };
   
   return (

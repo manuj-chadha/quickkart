@@ -85,11 +85,13 @@ import ProductCreatePage from './pages/admin/CreateProduct';
 import CategoryFormPage from './pages/admin/CategoryFormPage';
 import OrderSuccessPage from './pages/OrderConfirmationPage';
 import CustomersPage from './pages/admin/CustomersPage';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
       // <CartProvider>
-        <Router>
+      <Router>
+          <ToastContainer position="top-center" />
           <Routes>
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
