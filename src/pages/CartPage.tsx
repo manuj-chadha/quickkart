@@ -14,11 +14,11 @@ const CartPage: React.FC = () => {
   const handleCheckout = () => {
     if(!user) {
       toast.error("You need to be logged in to perform this action.", {
-  style: {
-    fontFamily: '"Inter var", sans-serif',
-    fontSize: "14px",
-    fontWeight: 400,
-  },
+      style: {
+        fontFamily: '"Inter var", sans-serif',
+        fontSize: "14px",
+        fontWeight: 400,
+      },
 });
     }
     else {

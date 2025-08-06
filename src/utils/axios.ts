@@ -34,7 +34,12 @@ API.interceptors.response.use(
       localStorage.removeItem("token");
       toast.error("You need to be logged in to perform this action.", {
         toastId: "auth-error",
-      });
+        style: {
+          fontFamily: '"Inter var", sans-serif',
+          fontSize: "14px",
+          fontWeight: 400,
+        },
+      }, );
     }
 
     return Promise.reject(error);

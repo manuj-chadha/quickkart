@@ -1,17 +1,65 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Menu, X, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { cn } from '../../utils/cn';
+
+const NAV_LINKS = [
+  { label: 'Home', path: '/' },
+  { label: 'Shop', path: '/products' },
+  { label: 'Categories', path: '/categories' },
+  { label: 'Deals', path: '/deals' },
+  { label: 'About', path: '/about' },
+];
 
 export function Header() {
   const { getItemsCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const navigate = useNavigate();
+
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      navigate(`/products?search=${encodeURIComponent(trimmed)}`);
+      setIsMenuOpen(false);
+      setSearchQuery("");
+    }
   };
+
+  const renderNavLinks = (isMobile = false) =>
+    NAV_LINKS.map(({ label, path }) => (
+      <Link
+        key={label}
+        to={path}
+        className={cn(
+          isMobile
+            ? 'text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100'
+            : 'text-gray-600 hover:text-primary-600 transition'
+        )}
+        onClick={isMobile ? toggleMenu : undefined}
+      >
+        {label}
+      </Link>
+    ));
+
+  const SearchInput = (
+    <form onSubmit={handleSearchSubmit} className="relative w-full">
+      <input
+        type="text"
+        placeholder="Search for products..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+      />
+      <button type="submit" className="absolute right-3 top-2 text-gray-400 hover:text-primary-600">
+        <Search size={20} />
+      </button>
+    </form>
+  );
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -23,35 +71,20 @@ export function Header() {
             <span className="text-xl font-bold text-primary-700 font-display">QuickKart</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-8 ml-12">
-            <Link to="/" className="text-gray-600 hover:text-primary-600 transition">Home</Link>
-            <Link to="/products" className="text-gray-600 hover:text-primary-600 transition">Shop</Link>
-            <Link to="/categories" className="text-gray-600 hover:text-primary-600 transition">Categories</Link>
-            <Link to="/deals" className="text-gray-600 hover:text-primary-600 transition">Deals</Link>
-            <Link to="/about" className="text-gray-600 hover:text-primary-600 transition">About</Link>
+            {renderNavLinks()}
           </nav>
 
-          {/* Search bar */}
-          <div className="hidden md:flex relative flex-1 mx-8">
-            <input
-              type="text"
-              placeholder="Search for products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-            <button className="absolute right-3 top-2 text-gray-400 hover:text-primary-600">
-              <Search size={20} />
-            </button>
-          </div>
+          {/* Desktop Search */}
+          <div className="hidden md:flex flex-1 mx-8">{SearchInput}</div>
 
-          {/* Right side icons */}
+          {/* Right Icons */}
           <div className="flex items-center space-x-4">
             <Link to="/profile" className="text-gray-600 hover:text-primary-600 transition">
               <User size={24} />
             </Link>
-            
+
             <Link to="/cart" className="relative text-gray-600 hover:text-primary-600 transition">
               <ShoppingCart size={24} />
               {getItemsCount() > 0 && (
@@ -60,39 +93,22 @@ export function Header() {
                 </span>
               )}
             </Link>
-            
-            {/* Mobile menu button */}
-            <button
-              onClick={toggleMenu}
-              className="md:hidden text-gray-600 hover:text-primary-600 transition"
-            >
+
+            <button onClick={toggleMenu} className="md:hidden text-gray-600 hover:text-primary-600 transition">
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile search bar */}
-        {/* <div className="md:hidden py-3">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search for products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            />
-            <button className="absolute right-3 top-2 text-gray-400 hover:text-primary-600">
-              <Search size={20} />
-            </button>
-          </div>
-        </div> */}
+        {/* Mobile Search */}
+        <div className="md:hidden py-3">{SearchInput}</div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       <div
         className={cn(
-          "md:hidden fixed inset-0 z-40 bg-white transform transition-transform duration-300 ease-in-out",
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
+          'md:hidden fixed inset-0 z-40 bg-white transform transition-transform duration-300 ease-in-out',
+          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
         <div className="flex justify-end p-4">
@@ -100,45 +116,11 @@ export function Header() {
             <X size={24} />
           </button>
         </div>
-        
+
         <nav className="flex flex-col p-4 space-y-4">
-          <Link 
-            to="/" 
-            className="text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100"
-            onClick={toggleMenu}
-          >
-            Home
-          </Link>
-          <Link 
-            to="/products" 
-            className="text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100"
-            onClick={toggleMenu}
-          >
-            Shop
-          </Link>
-          <Link 
-            to="/categories" 
-            className="text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100"
-            onClick={toggleMenu}
-          >
-            Categories
-          </Link>
-          <Link 
-            to="/deals" 
-            className="text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100"
-            onClick={toggleMenu}
-          >
-            Deals
-          </Link>
-          <Link 
-            to="/about" 
-            className="text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100"
-            onClick={toggleMenu}
-          >
-            About
-          </Link>
-          <Link 
-            to="/login" 
+          {renderNavLinks(true)}
+          <Link
+            to="/login"
             className="text-lg text-gray-600 hover:text-primary-600 transition py-2 border-b border-gray-100"
             onClick={toggleMenu}
           >
