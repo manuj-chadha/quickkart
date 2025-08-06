@@ -42,7 +42,11 @@ const ProductsPage: React.FC = () => {
 
   useEffect(() => {
     const search = searchParams.get('search');
-    if (search) setSearchQuery(search);
+    if (search) {
+      setSearchQuery(search);
+      setCurrentPage(1);
+    }
+
   }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
@@ -57,6 +61,7 @@ const ProductsPage: React.FC = () => {
 
     // Search
     if (searchQuery.trim()) {
+      setCurrentPage(1);
       const q = searchQuery.trim().toLowerCase();
       result = result.filter(
         (p) =>
@@ -97,6 +102,7 @@ const ProductsPage: React.FC = () => {
 
   const resetFilters = () => {
     setSearchQuery('');
+    setCurrentPage(1);
     setSelectedCategory('all');
     setPriceRange(DEFAULT_PRICE_RANGE);
     setSortBy('default');
